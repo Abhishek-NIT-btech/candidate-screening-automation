@@ -1,0 +1,475 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {
+          "q": "has:attachment {filename:pdf filename:doc filename:docx}"
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "4283e342-7550-41a6-bfab-a43a2a06537d",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "UsVBpeWjrTab7Xqf",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "messageId": "={{ $json.id }}",
+        "simple": false,
+        "options": {
+          "downloadAttachments": true
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "a4614eee-67c4-4e04-8a59-f1e9ca537d6d",
+      "name": "Get a message",
+      "webhookId": "34fc3d95-6596-420a-bd39-4d140a4039f0",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "UsVBpeWjrTab7Xqf",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "attachment_0",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "fdc24f78-8db0-49c9-902e-5498027977f0",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.text }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "name",
+              "description": "Candidate's full name",
+              "required": true
+            },
+            {
+              "name": "email",
+              "description": "Candidate's email address",
+              "required": true
+            },
+            {
+              "name": "phone",
+              "description": "Candidate's phone number",
+              "required": true
+            },
+            {
+              "name": "Linkedin",
+              "description": "Candidate's LinkedIn profile URL",
+              "required": true
+            },
+            {
+              "name": "GitHub",
+              "description": "Candidate's GitHub profile URL",
+              "required": true
+            },
+            {
+              "name": "skills",
+              "description": "Candidate's technical skills",
+              "required": true
+            },
+            {
+              "name": "experience",
+              "description": "Candidate's professional experience",
+              "required": true
+            },
+            {
+              "name": "education",
+              "description": "Candidate's educational background",
+              "required": true
+            },
+            {
+              "name": "applied_role",
+              "description": "Job role the candidate applied for",
+              "required": true
+            },
+            {
+              "name": "resume_summary",
+              "description": "Brief summary of the candidate's resume, experience, and relevant qualifications",
+              "required": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        672,
+        0
+      ],
+      "id": "cbe09e3b-3b1a-4429-9966-6004eb38f9e4",
+      "name": "Information Extractor"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        608,
+        208
+      ],
+      "id": "12d8f65e-32f2-4cdd-be9c-6cb1d57d621a",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "14ShmZQdtnQjdehAYpC7gu72C6KQmMpc2cpw9O-SGAHY",
+          "mode": "list",
+          "cachedResultName": "Candidate Screening Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14ShmZQdtnQjdehAYpC7gu72C6KQmMpc2cpw9O-SGAHY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Candidates",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14ShmZQdtnQjdehAYpC7gu72C6KQmMpc2cpw9O-SGAHY/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json.output.name }}",
+            "Email": "={{ $json.output.email }}",
+            "Phone": "={{ $json.output.phone }}",
+            "Skills": "={{ $json.output.skills }}",
+            "Experience": "={{ $json.output.experience }}",
+            "Applied Role": "={{ $json.output.applied_role }}",
+            "Resume Summary": "={{ $json.output.resume_summary }}",
+            "Status": "Pending"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Skills",
+              "displayName": "Skills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Experience",
+              "displayName": "Experience",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Applied Role",
+              "displayName": "Applied Role",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Resume Summary",
+              "displayName": "Resume Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1040,
+        0
+      ],
+      "id": "518fb5c6-adf9-4f18-8dd2-9e46cee58431",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GeBvYrCcit3C7NOq",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1PLctJptfMP6zzOEedD-ayEQ7auX1jhO7HL4fIA8qH5w",
+          "mode": "list",
+          "cachedResultName": "Candidate Screening Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1PLctJptfMP6zzOEedD-ayEQ7auX1jhO7HL4fIA8qH5w/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Candidates",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1PLctJptfMP6zzOEedD-ayEQ7auX1jhO7HL4fIA8qH5w/edit#gid=0"
+        },
+        "event": "rowUpdate",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        1264,
+        0
+      ],
+      "id": "3db46bff-9cbf-4ab9-bd1f-d988cec13d3f",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "pssgQIxGhbN5WrSe",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f9f0b3ac-1a11-4252-9fba-370a645301fa",
+              "leftValue": "={{ $json.Status }}",
+              "rightValue": "Selected",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1488,
+        0
+      ],
+      "id": "46bfc01d-8ea2-4ffc-b1cf-5898418003cd",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "{{ $json.email }}",
+        "subject": "Congratulations! You Have Been Selected",
+        "message": "=Hi {{ $json.name }},\n\nCongratulations!\n\nWe are pleased to inform you that you have been selected for the next stage of the recruitment process.\n\nWe will contact you shortly with the next steps and further details.\n\nBest regards,\nRecruitment Team",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1712,
+        -96
+      ],
+      "id": "c0250cc4-7b65-4857-9c9e-549c3abc61db",
+      "name": "Send a message",
+      "webhookId": "d4973e8f-ceb4-4525-baf8-51fabaefc62d",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "UsVBpeWjrTab7Xqf",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a message": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "02b2303f-7014-41bd-b959-c7e8d298e034",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f8a2f26b17aa60c7f536f4ea8cb6ba5f7c7397f28618ad336f02db01fef2a3d8"
+  },
+  "nodeGroups": [],
+  "id": "gZpZscZiGB2FWYjl",
+  "tags": []
+}
