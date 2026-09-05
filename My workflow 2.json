@@ -1,0 +1,260 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "14ShmZQdtnQjdehAYpC7gu72C6KQmMpc2cpw9O-SGAHY",
+          "mode": "list",
+          "cachedResultName": "Candidate Screening Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14ShmZQdtnQjdehAYpC7gu72C6KQmMpc2cpw9O-SGAHY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Candidates",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14ShmZQdtnQjdehAYpC7gu72C6KQmMpc2cpw9O-SGAHY/edit#gid=0"
+        },
+        "event": "rowUpdate",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b36383d4-ebcf-4da1-b2a1-8dc1a03e6290",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "pssgQIxGhbN5WrSe",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "705803ec-9a21-459d-a6bf-6bb4adf1ab00",
+              "leftValue": "={{ $json.Status }}",
+              "rightValue": "=Selected",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "4ad26e7a-cc20-4f6d-911d-485cf1c707cd",
+              "leftValue": "={{ $json.Status }}",
+              "rightValue": "Rejected",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        224,
+        0
+      ],
+      "id": "71152b66-4736-447d-9841-bb2375dfa038",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.Email }}",
+        "subject": "Congratulations! You Have Been Selected for the Next Round",
+        "message": "=<div style=\"font-family: Arial, sans-serif; line-height: 1.6; color: #333;\">\n\n  <h2>Congratulations, {{ $json.Name }}!</h2>\n\n  <p>We are pleased to inform you that you have been <strong>selected for the next round</strong> of our recruitment process for the <strong>{{ $json[\"Applied Role\"] }}</strong> position.</p>\n\n  <p>Thank you for your time and effort throughout the selection process. Our recruitment team will contact you with the interview schedule and further instructions.</p>\n\n  <h3>Next Round – Please Keep Ready</h3>\n\n  <ul>\n    <li>Updated resume</li>\n    <li>Government-issued ID</li>\n    <li>Academic certificates / mark sheets</li>\n    <li>Relevant project or work samples</li>\n  </ul>\n\n  <p>Please keep your contact details updated and check your email regularly for the interview invitation and scheduling information.</p>\n\n  <p><strong>Next step:</strong> Please be available to attend the second-round interview once the schedule is shared by our recruitment team.</p>\n\n  <p>We look forward to speaking with you.</p>\n\n  <br>\n\n  <p>\n    Best regards,<br>\n    <strong>Recruitment Team</strong><br>\n    Talent Acquisition\n  </p>\n\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        -96
+      ],
+      "id": "73956dd8-f7af-4bca-88c2-8bb2fbff045f",
+      "name": "Send a message",
+      "webhookId": "1203c5ad-0c93-4981-ab46-06fed86c18da",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "UsVBpeWjrTab7Xqf",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "abhishekreddyk05@gmail.com",
+        "subject": "=Candidate Selected – {{ $('Google Sheets Trigger').item.json.Name }} – {{ $('Google Sheets Trigger').item.json[\"Applied Role\"] }}",
+        "message": "=<div style=\"font-family: Arial, sans-serif; line-height: 1.6; color: #333;\">\n\n  <h2>Candidate Selected for Next Round</h2>\n\n  <p>\n    Hi HR Team,\n  </p>\n\n  <p>\n    A candidate has been <strong>selected for the next round</strong> of the\n    recruitment process. Please review the candidate details below and\n    proceed with scheduling the second-round interview.\n  </p>\n\n  <h3>Candidate Details</h3>\n\n  <p>\n    <strong>Name:</strong>\n    {{ $('Google Sheets Trigger').item.json.Name }}\n  </p>\n\n  <p>\n    <strong>Email:</strong>\n    {{ $('Google Sheets Trigger').item.json.Email }}\n  </p>\n\n  <p>\n    <strong>Phone:</strong>\n    {{ $('Google Sheets Trigger').item.json.Phone }}\n  </p>\n\n  <p>\n    <strong>Applied Role:</strong>\n    {{ $('Google Sheets Trigger').item.json[\"Applied Role\"] }}\n  </p>\n\n  <p>\n    <strong>Skills:</strong>\n    {{ $('Google Sheets Trigger').item.json.Skills }}\n  </p>\n\n  <p>\n    <strong>Experience:</strong>\n    {{ $('Google Sheets Trigger').item.json.Experience }}\n  </p>\n\n  <p>\n    <strong>Resume Summary:</strong>\n    {{ $('Google Sheets Trigger').item.json[\"Resume Summary\"] }}\n  </p>\n\n  <h3>Second Round Interview Instructions</h3>\n\n  <p>\n    Please review the interview preparation guidelines and document\n    requirements before scheduling the candidate's second-round interview:\n  </p>\n\n  <p>\n    <a href=\"https://docs.google.com/document/d/1CIIzLFJmKbOh8hlaHmkzqVZkwP5Zd5bZGD-iwiHss3o/edit?usp=sharing\"\n       target=\"_blank\"\n       style=\"color: #1a73e8; font-weight: bold;\">\n      View Second Round Interview Instructions\n    </a>\n  </p>\n\n  <h3>Next Action</h3>\n\n  <p>\n    Please review the candidate's profile and proceed with scheduling the\n    <strong>second-round interview</strong>.\n  </p>\n\n  <p>\n    <strong>Action:</strong> Schedule the interview and send the interview\n    invitation to the candidate with the confirmed date, time, and meeting link.\n  </p>\n\n  <p>\n    Best regards,<br>\n    <strong>Recruitment Automation</strong><br>\n    Talent Acquisition\n  </p>\n\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        -96
+      ],
+      "id": "82f790fb-2c40-47fe-8ac0-0eff82fcef9d",
+      "name": "Send a message1",
+      "webhookId": "9e26a818-cbdd-4e0d-b567-200faf25fb0a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "UsVBpeWjrTab7Xqf",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.Email }}",
+        "subject": "Thank You for Your Application",
+        "message": "=Hi {{ $json.Name }},<br><br>  Thank you for taking the time to apply for the <b>{{ $json[\"Applied Role\"] }}</b> position and for your interest in our organization.<br><br>  After careful consideration, we regret to inform you that we will not be moving forward with your application at this time.<br><br>  We appreciate your time and effort throughout the application process and encourage you to apply for future opportunities that match your skills and experience.<br><br>  We wish you all the best in your career.<br><br>  Best regards,<br> <b>Recruitment Team</b>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        96
+      ],
+      "id": "b5b6b8b9-67fd-4d73-8ee2-bf06bafe01f1",
+      "name": "Send a message2",
+      "webhookId": "1626224d-6385-4d25-b369-940bc8f9110e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "UsVBpeWjrTab7Xqf",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a2039e7d-deb5-4bab-b9ea-f57d001e3db1",
+              "leftValue": "={{ $json.Status }}",
+              "rightValue": "Rejected",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        592,
+        144
+      ],
+      "id": "068c4c99-1bd6-4506-89ef-5254d7e4df04",
+      "name": "If1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Send a message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "4b3967c1-f600-44f2-93a6-5518eee2cdc0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f8a2f26b17aa60c7f536f4ea8cb6ba5f7c7397f28618ad336f02db01fef2a3d8"
+  },
+  "nodeGroups": [],
+  "id": "7ZhiMW7o0FZehZ96",
+  "tags": []
+}
